@@ -6,7 +6,6 @@
 
     Helper functions for writing games.
 ]]
-
 --[[
     Given an "atlas" (a texture with multiple sprites), as well as a
     width and a height for the tiles therein, split the texture into
@@ -38,11 +37,11 @@ end
 ]]
 function table.slice(tbl, first, last, step)
     local sliced = {}
-
+  
     for i = first or 1, last or #tbl, step or 1 do
       sliced[#sliced+1] = tbl[i]
     end
-
+  
     return sliced
 end
 
@@ -52,7 +51,7 @@ end
     we have to return a subset of GenerateQuads.
 ]]
 function GenerateQuadsBricks(atlas)
-    return table.slice(GenerateQuads(atlas, 32, 16), 1, 21)
+    return table.slice(GenerateQuads(atlas, 32, 16), 1, 23)
 end
 
 --[[
@@ -99,7 +98,7 @@ end
     manually, since they are in an awkward part of the sheet and small.
 ]]
 function GenerateQuadsBalls(atlas)
-    local x = 96
+    local x = 128
     local y = 48
 
     local counter = 1
@@ -111,7 +110,7 @@ function GenerateQuadsBalls(atlas)
         counter = counter + 1
     end
 
-    x = 96
+    x = 128
     y = 56
 
     for i = 0, 2 do
@@ -122,3 +121,22 @@ function GenerateQuadsBalls(atlas)
 
     return quads
 end
+
+function GenerateQuadsPowerups(atlas)
+    local x = 0
+    local y = 192
+
+    local counter = 1
+    local quads = {}
+
+    for i = 0, 9 do
+        quads[counter] = love.graphics.newQuad(x, y, 16, 16, atlas:getDimensions())
+        x = x + 16
+        counter = counter + 1
+    end
+    return quads
+end
+
+
+
+rnd = math.random

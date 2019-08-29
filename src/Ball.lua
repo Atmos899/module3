@@ -25,6 +25,12 @@ function Ball:init(skin)
     -- this will effectively be the color of our ball, and we will index
     -- our table of Quads relating to the global block texture using this
     self.skin = skin
+
+    --Taga check kung yung ball ay nasa stuck state :D
+    self.stuck = false
+
+    self.lastframeStuck = false
+    self.frameStuck = false
 end
 
 --[[
@@ -42,7 +48,7 @@ function Ball:collides(target)
     -- edge of the other
     if self.y > target.y + target.height or target.y > self.y + self.height then
         return false
-    end
+    end 
 
     -- if the above aren't true, they're overlapping
     return true
@@ -58,7 +64,40 @@ function Ball:reset()
     self.dy = 0
 end
 
-function Ball:update(dt)
+function Ball:update(dt, paddle)
+    self.lastframeStuck = self.frameStuck
+    self.frameStuck = self.stuck
+   
+    --Attractor powerup change ball update function 
+    if self.stuck then
+        if(self.x < 0) then
+            self.y = paddle.y + 1
+            self.x = 0
+        elseif (self.x + self.width > VIRTUAL_WIDTH) then
+            self.y = paddle.y + 1
+            self.x = VIRTUAL_WIDTH - self.width
+        else
+            self.x = self.x + paddle.dx * dt
+        end
+        return
+    end
+
+    if(not self.stuck and self.lastframeStuck) then
+        local mousex, mousey = push:toGame(love.mouse.getX(),love.mouse.getY())
+
+        if(mousex ~= nil and mousey ~= nil) then
+            local angle = math.atan2(mousey - self.y + self.width / 2, mousex - self.x  + self.width / 2)
+        
+            self.dx = math.cos(angle) * 100
+            self.dy = math.sin(angle) * 100
+
+            if(mousey > paddle.y + paddle.height) then
+                self.dy = - self.dy
+                self.dx = - self.dx
+            end
+        end
+    end
+    
     self.x = self.x + self.dx * dt
     self.y = self.y + self.dy * dt
 

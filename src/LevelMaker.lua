@@ -51,13 +51,13 @@ function LevelMaker.createMap(level)
 
         -- whether we want to enable alternating colors for this row
         local alternatePattern = math.random(1, 2) == 1 and true or false
-
+        
         -- choose two colors to alternate between
         local alternateColor1 = math.random(1, highestColor)
         local alternateColor2 = math.random(1, highestColor)
         local alternateTier1 = math.random(0, highestTier)
         local alternateTier2 = math.random(0, highestTier)
-
+        
         -- used only when we want to skip a block, for skip pattern
         local skipFlag = math.random(2) == 1 and true or false
 
@@ -87,7 +87,7 @@ function LevelMaker.createMap(level)
                 * 32                    -- multiply by 32, the brick width
                 + 8                     -- the screen should have 8 pixels of padding; we can fit 13 cols + 16 pixels total
                 + (13 - numCols) * 16,  -- left-side padding for when there are fewer than 13 columns
-
+                
                 -- y-coordinate
                 y * 16                  -- just use y * 16, since we need top padding anyway
             )
@@ -107,19 +107,28 @@ function LevelMaker.createMap(level)
             if not alternatePattern then
                 b.color = solidColor
                 b.tier = solidTier
-            end
+            end 
 
             table.insert(bricks, b)
 
             -- Lua's version of the 'continue' statement
             ::continue::
         end
-    end
+    end 
 
     -- in the event we didn't generate any bricks, try again
     if #bricks == 0 then
         return self.createMap(level)
     else
-        return bricks
+        return addLockedBrick(bricks)
     end
+end
+
+function addLockedBrick(bricks)
+    if rnd(0,1) < LOCKED_BRICK_SPAWNING_ODDS then
+        brickIndex = rnd(1, #bricks)
+        bricks[brickIndex].color = 6
+        bricks[brickIndex].tier = 0
+    end
+    return bricks
 end

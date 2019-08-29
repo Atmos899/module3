@@ -10,6 +10,7 @@
     which the player gets to choose upon starting the game.
 ]]
 
+
 Paddle = Class{}
 
 --[[
@@ -37,9 +38,14 @@ function Paddle:init(skin)
     -- the variant is which of the four paddle sizes we currently are; 2
     -- is the starting size, as the smallest is too tough to start with
     self.size = 2
+
+    self.power = {}
+ --Value Storing 
+    self.lastX = nil
 end
 
 function Paddle:update(dt)
+    self.lastX = self.x
     -- keyboard input
     if love.keyboard.isDown('left') then
         self.dx = -PADDLE_SPEED
@@ -62,6 +68,19 @@ function Paddle:update(dt)
     else
         self.x = math.min(VIRTUAL_WIDTH - self.width, self.x + self.dx * dt)
     end
+    if self.lastX == self.x then
+        self.dx = 0
+    end
+end
+
+function Paddle:grow()
+    self.size = math.min(4, self.size + 1)
+    self.width = math.min(128, self.width + 32)
+end
+
+function Paddle:shrink()
+    self.size = math.max(1, self.size - 1)
+    self.width = math.max(32, self.width - 32)
 end
 
 --[[
@@ -69,6 +88,19 @@ end
     that corresponds to the proper skin and size.
 ]]
 function Paddle:render()
+    if #self.power > 0 then
+        local power = self.power[#self.power]
+        if (power.type == "key") then
+            local factor = math.cos( (love.timer.getTime() - power.timer) / MAX_KEY_TIME * 60.0)
+            factor = factor * 0.5 + 0.5
+            love.graphics.setColor(255, 255, 0, 255 * factor)
+        elseif (power.type == "attractor") then
+            local factor = math.cos( (love.timer.getTime() - power.timer) / MAX_KEY_TIME * 60.0)
+            factor = factor * 0.5 + 0.5
+            love.graphics.setColor(0, 128, 0, 255 * factor)
+        end
+    end
     love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
         self.x, self.y)
+        love.graphics.setColor(255, 255, 255, 255)
 end
